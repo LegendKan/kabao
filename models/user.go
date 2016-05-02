@@ -7,7 +7,9 @@ import (
 	"strings"
 	"time"
 
+	//"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"kabao/common"
 )
 
 type User struct {
@@ -15,7 +17,6 @@ type User struct {
 	Username       string    `orm:"column(username);size(32);null"`
 	Password       string    `orm:"column(password);size(64)"`
 	Salt           string    `orm:"column(salt);size(32)"`
-	Token          string    `orm:"column(token);size(64);null"`
 	Phone          string    `orm:"column(phone);size(11);null"`
 	Email          string    `orm:"column(email);size(64);null"`
 	Sex            int8      `orm:"column(sex)"`
@@ -26,6 +27,10 @@ type User struct {
 	Status         int8      `orm:"column(status)"`
 	Createtime     time.Time `orm:"column(createtime);type(datetime)"`
 	Lastupdatetime time.Time `orm:"column(lastupdatetime);type(timestamp);auto_now"`
+}
+
+func (t *User) TableName() string {
+	return "user"
 }
 
 func init() {
@@ -40,6 +45,31 @@ func AddUser(m *User) (id int64, err error) {
 	return
 }
 
+func AddNewUser(m *User) (id int64, err error) {
+	o := orm.NewOrm()
+	v := &User{Phone: m.Phone}
+	if err = o.Read(v, "Phone"); err == nil {
+		err = ErrExist
+		return
+	}
+	if err = o.Begin(); err != nil {
+		return
+	}
+	id, err = o.Insert(m)
+	if err == nil {
+		t := &Token{Userid: int(id), Token: common.RandSeq(64)}
+		_, err := AddToken(t)
+		if err != nil {
+			o.Rollback()
+			return id, err
+		} else {
+			o.Commit()
+			return id, nil
+		}
+	}
+	return
+}
+
 // GetUserById retrieves User by Id. Returns error if
 // Id doesn't exist
 func GetUserById(id int) (v *User, err error) {
@@ -47,6 +77,18 @@ func GetUserById(id int) (v *User, err error) {
 	v = &User{Id: id}
 	if err = o.Read(v); err == nil {
 		return v, nil
+	}
+	return nil, err
+}
+
+func GetUserByPhone(phone string) (v *User, err error) {
+	o := orm.NewOrm()
+	v = &User{Phone: phone}
+	if err = o.Read(v, "Phone"); err == nil {
+		return v, nil
+	} else if err == orm.ErrNoRows {
+		//logs.("No User with Phone %s", phone)
+		return nil, ErrNoRows
 	}
 	return nil, err
 }

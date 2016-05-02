@@ -22,6 +22,10 @@ type Commoncard struct {
 	Hit           int    `orm:"column(hit)"`
 }
 
+func (t *Commoncard) TableName() string {
+	return "commoncard"
+}
+
 func init() {
 	orm.RegisterModel(new(Commoncard))
 }

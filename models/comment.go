@@ -19,6 +19,10 @@ type Comment struct {
 	Lastupdatetime time.Time `orm:"column(lastupdatetime);type(timestamp)"`
 }
 
+func (t *Comment) TableName() string {
+	return "comment"
+}
+
 func init() {
 	orm.RegisterModel(new(Comment))
 }

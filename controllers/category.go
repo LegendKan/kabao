@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"kabao/models"
 	"strconv"
 	"strings"
+	"tmp/models"
 
 	"github.com/astaxie/beego"
 )
@@ -26,18 +26,22 @@ func (c *CategoryController) URLMapping() {
 // @Title Post
 // @Description create Category
 // @Param	body		body 	models.Category	true		"body for Category content"
-// @Success 200 {int} models.Category.Id
+// @Success 201 {int} models.Category
 // @Failure 403 body is empty
 // @router / [post]
 func (c *CategoryController) Post() {
 	var v models.Category
-	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	if id, err := models.AddCategory(&v); err == nil {
-		c.Data["json"] = map[string]int64{"id": id}
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if _, err := models.AddCategory(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = v
+		} else {
+			c.Data["json"] = err.Error()
+		}
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Get
@@ -47,7 +51,7 @@ func (c *CategoryController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *CategoryController) GetOne() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetCategoryById(id)
 	if err != nil {
@@ -55,7 +59,7 @@ func (c *CategoryController) GetOne() {
 	} else {
 		c.Data["json"] = v
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Get All
@@ -103,7 +107,7 @@ func (c *CategoryController) GetAll() {
 			kv := strings.Split(cond, ":")
 			if len(kv) != 2 {
 				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJson()
+				c.ServeJSON()
 				return
 			}
 			k, v := kv[0], kv[1]
@@ -117,7 +121,7 @@ func (c *CategoryController) GetAll() {
 	} else {
 		c.Data["json"] = l
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Update
@@ -128,16 +132,19 @@ func (c *CategoryController) GetAll() {
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *CategoryController) Put() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v := models.Category{Id: id}
-	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	if err := models.UpdateCategoryById(&v); err == nil {
-		c.Data["json"] = "OK"
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if err := models.UpdateCategoryById(&v); err == nil {
+			c.Data["json"] = "OK"
+		} else {
+			c.Data["json"] = err.Error()
+		}
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Delete
@@ -147,12 +154,12 @@ func (c *CategoryController) Put() {
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *CategoryController) Delete() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	if err := models.DeleteCategory(id); err == nil {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }

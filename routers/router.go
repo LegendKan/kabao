@@ -11,10 +11,20 @@ import (
 	"kabao/controllers"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/context"
 )
 
 func init() {
 	ns := beego.NewNamespace("/v1",
+
+		beego.NSCond(func(ctx *context.Context) bool {
+			if ctx.Input.Domain() == "api.beego.me" {
+				return true
+			}
+			return false
+		}),
+
+		beego.NSBefore(auth),
 
 		beego.NSNamespace("/category",
 			beego.NSInclude(

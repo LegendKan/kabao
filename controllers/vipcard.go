@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"kabao/models"
 	"strconv"
 	"strings"
+	"tmp/models"
 
 	"github.com/astaxie/beego"
 )
@@ -26,18 +26,22 @@ func (c *VipcardController) URLMapping() {
 // @Title Post
 // @Description create Vipcard
 // @Param	body		body 	models.Vipcard	true		"body for Vipcard content"
-// @Success 200 {int} models.Vipcard.Id
+// @Success 201 {int} models.Vipcard
 // @Failure 403 body is empty
 // @router / [post]
 func (c *VipcardController) Post() {
 	var v models.Vipcard
-	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	if id, err := models.AddVipcard(&v); err == nil {
-		c.Data["json"] = map[string]int64{"id": id}
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if _, err := models.AddVipcard(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = v
+		} else {
+			c.Data["json"] = err.Error()
+		}
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Get
@@ -47,7 +51,7 @@ func (c *VipcardController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *VipcardController) GetOne() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetVipcardById(id)
 	if err != nil {
@@ -55,7 +59,7 @@ func (c *VipcardController) GetOne() {
 	} else {
 		c.Data["json"] = v
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Get All
@@ -103,7 +107,7 @@ func (c *VipcardController) GetAll() {
 			kv := strings.Split(cond, ":")
 			if len(kv) != 2 {
 				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJson()
+				c.ServeJSON()
 				return
 			}
 			k, v := kv[0], kv[1]
@@ -117,7 +121,7 @@ func (c *VipcardController) GetAll() {
 	} else {
 		c.Data["json"] = l
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Update
@@ -128,16 +132,19 @@ func (c *VipcardController) GetAll() {
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *VipcardController) Put() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v := models.Vipcard{Id: id}
-	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	if err := models.UpdateVipcardById(&v); err == nil {
-		c.Data["json"] = "OK"
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if err := models.UpdateVipcardById(&v); err == nil {
+			c.Data["json"] = "OK"
+		} else {
+			c.Data["json"] = err.Error()
+		}
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }
 
 // @Title Delete
@@ -147,12 +154,12 @@ func (c *VipcardController) Put() {
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *VipcardController) Delete() {
-	idStr := c.Ctx.Input.Params[":id"]
+	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	if err := models.DeleteVipcard(id); err == nil {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
 	}
-	c.ServeJson()
+	c.ServeJSON()
 }

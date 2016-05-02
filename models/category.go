@@ -15,6 +15,10 @@ type Category struct {
 	Parentid     int    `orm:"column(parentid)"`
 }
 
+func (t *Category) TableName() string {
+	return "category"
+}
+
 func init() {
 	orm.RegisterModel(new(Category))
 }

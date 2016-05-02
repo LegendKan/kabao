@@ -40,6 +40,10 @@ type Vipcard struct {
 	Lastupdatetime  time.Time `orm:"column(lastupdatetime);type(timestamp)"`
 }
 
+func (t *Vipcard) TableName() string {
+	return "vipcard"
+}
+
 func init() {
 	orm.RegisterModel(new(Vipcard))
 }
