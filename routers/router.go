@@ -21,7 +21,7 @@ func init() {
 			if ctx.Input.Domain() == "api.beego.me" {
 				return true
 			}
-			return false
+			return true
 		}),
 
 		beego.NSBefore(auth),
