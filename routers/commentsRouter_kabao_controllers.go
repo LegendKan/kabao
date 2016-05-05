@@ -155,6 +155,13 @@ func init() {
 
 	beego.GlobalControllerRouter["kabao/controllers:UserController"] = append(beego.GlobalControllerRouter["kabao/controllers:UserController"],
 		beego.ControllerComments{
+			"SignUp",
+			`/signup`,
+			[]string{"post"},
+			nil})
+
+	beego.GlobalControllerRouter["kabao/controllers:UserController"] = append(beego.GlobalControllerRouter["kabao/controllers:UserController"],
+		beego.ControllerComments{
 			"GetOne",
 			`/:id`,
 			[]string{"get"},
