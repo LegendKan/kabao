@@ -11,12 +11,13 @@ import (
 )
 
 type Token struct {
-	Id       int       `orm:"column(tokenid);auto"`
-	Userid   int       `orm:"column(userid)"`
-	Token    string    `orm:"column(token);size(64)"`
-	Type     int8      `orm:"column(type)"`
-	Isactive int8      `orm:"column(isactive)"`
-	Createat time.Time `orm:"column(createat);type(timestamp);auto_now"`
+	Id         int       `orm:"column(tokenid);auto"`
+	Userid     int       `orm:"column(userid)"`
+	Token      string    `orm:"column(token);size(64)"`
+	Type       int8      `orm:"column(type)"`
+	Isactive   int8      `orm:"column(isactive)"`
+	Expiretime time.Time `orm:"column(expiretime);type(datetime)"`
+	Createat   time.Time `orm:"column(createat);type(timestamp);auto_now"`
 }
 
 func (t *Token) TableName() string {

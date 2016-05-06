@@ -3,9 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"kabao/models"
+	"kabao/utils"
 	"strconv"
 	"strings"
-	"tmp/models"
+	"time"
 
 	"github.com/astaxie/beego"
 )
@@ -44,7 +46,7 @@ func (c *UserController) Post() {
 	c.ServeJSON()
 }
 
-// @Title Post
+// @Title SignUp
 // @Description create User
 // @Param	body		body 	models.User	true		"body for User content"
 // @Success 201 {int} models.User
@@ -53,22 +55,42 @@ func (c *UserController) Post() {
 func (c *UserController) SignUp() {
 	var v models.User
 	var r *Result
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if v.Phone == "" || len(v.Password) < 6 {
-			r = BuildResult(ParamsError, "")
-			c.Data["json"] = *r
-			c.ServeJSON()
-			return
-		}
-		if _, err := models.AddUser(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
+	v.Phone = c.GetString("phone")
+	v.Password = c.GetString("password")
+	verification := c.GetString("verification")
+	//先连接redis判断验证码相关
+
+	if v.Phone == "" || len(v.Password) < 6 {
+		r = BuildResult(ParamsError, "")
+		c.Data["json"] = *r
+		c.ServeJSON()
+		return
+	}
+	//判断手机号是否注册过
+	_, err := models.GetUserByPhone(v.Phone)
+	if err == nil {
+		r = BuildResult(PhoneHaveRegistered, "")
+	} else if err == models.ErrNoRows {
+		//生成salt,加密密码
+		salt := utils.RandSeq(32)
+		v.Salt = salt
+		v.Password = utils.Encrypt(v.Password, salt)
+		v.Username = v.Phone + "_m"
+		if uid, err := models.AddUser(&v); err == nil {
+			//插入token
+			token := Token{Userid: uid, Token: utils.RandSeq(32), Isactive: 1, Expiretime: time.Now().Add(time.Month * 3)}
+			tid, err := models.AddToken(&token)
+			token.Id = tid
+			//把token放入redis里
+
+			r = BuildResult(OK, token)
 		} else {
-			c.Data["json"] = err.Error()
+			r = BuildResult(SomeError, err)
 		}
 	} else {
-		c.Data["json"] = err.Error()
+		r = BuildResult(SomeError, err)
 	}
+	c.Data["json"] = *r
 	c.ServeJSON()
 }
 
