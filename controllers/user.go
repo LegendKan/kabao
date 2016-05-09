@@ -80,8 +80,10 @@ func (c *UserController) SignUp() {
 			//插入token
 			token := Token{Userid: uid, Token: utils.RandSeq(32), Isactive: 1, Expiretime: time.Now().Add(time.Month * 3)}
 			tid, err := models.AddToken(&token)
-			token.Id = tid
-			//把token放入redis里
+			if err != nil {
+				token.Id = tid
+				//把token放入redis里
+			}
 
 			r = BuildResult(OK, token)
 		} else {
