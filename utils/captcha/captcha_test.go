@@ -22,4 +22,8 @@ func TestDraw(t *testing.T) {
 	if err != nil {
 		t.Error("Write error: " + err.Error())
 	}
+	err = b.Flush()
+	if err != nil {
+		t.Error("Flush error: " + err.Error())
+	}
 }

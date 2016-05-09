@@ -15,9 +15,9 @@ import (
 
 const (
 	fontPath = "../../static/fonts/"
-	fontFile = "Arcade Book.ttf"
-	fontSize = 12
-	spacing  = 1.5
+	fontFile = "Calligstrophe.ttf"
+	fontSize = 18
+	//spacing  = 1.2
 )
 
 //var font
@@ -42,23 +42,23 @@ func init() {
 
 func DrawToImg(strCode string) ([]byte, error) {
 	//计算字符串的宽度，对于高度，还有此问题，懂的可以改改
-	pt := freetype.Pt(10, 10+int(context.PointToFixed(fontSize)>>6))
+	pt := freetype.Pt(3, 3+int(context.PointToFixed(fontSize)>>6))
 	ptr, err := context.MeasureString(strCode, pt)
 	if err != nil {
 		return nil, err
 	}
-	//pt.Y += context.PointToFixed(fontSize * spacing)
 	width := int(ptr.X >> 6)
-	width += 10
-	height := int(pt.Y+context.PointToFixed(fontSize*spacing))>>6 - int(context.PointToFixed(fontSize)>>6)
+	width += 7
+	height := int(context.PointToFixed(fontSize)>>6) + 5 //int(pt.Y+context.PointToFixed(fontSize*spacing))>>6 - int(context.PointToFixed(fontSize)>>6) + 5
 	fg, bg := image.Black, image.White
+	fmt.Println(width, height)
 	rgba := image.NewRGBA(image.Rect(0, 0, width, height))
 	draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
-	//disturbBitmap(rgba)
+	disturbBitmap(rgba)
 	context.SetClip(rgba.Bounds())
 	context.SetDst(rgba)
 	context.SetSrc(fg)
-	_, err = context.DrawString("1234", pt)
+	_, err = context.DrawString(strCode, pt)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func disturbBitmap(img *image.RGBA) {
 	for i := 0; i < img.Rect.Max.X; i++ {
 		for j := 0; j < img.Rect.Max.Y; j++ {
 			n := r.Intn(100)
-			if n < 40 {
+			if n < 20 {
 				c := color.NRGBA{uint8(r.Intn(150)), uint8(r.Intn(150)), uint8(r.Intn(150)), uint8(r.Intn(100))}
 				img.Set(i, j, c)
 			}

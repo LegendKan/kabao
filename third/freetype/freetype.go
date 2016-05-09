@@ -10,7 +10,6 @@ package freetype
 
 import (
 	"errors"
-	"fmt"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
@@ -234,7 +233,6 @@ func (c *Context) DrawString(s string, p fixed.Point26_6) (fixed.Point26_6, erro
 	prev, hasPrev := truetype.Index(0), false
 	for _, rune := range s {
 		index := c.f.Index(rune)
-		fmt.Println("Index: ", index)
 		if hasPrev {
 			kern := c.f.Kern(c.scale, prev, index)
 			if c.hinting != font.HintingNone {
