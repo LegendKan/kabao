@@ -19,7 +19,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 
-	"golang.org/x/crypto/pbkdf2"
+	"kabao/third/pbkdf2"
 )
 
 // Encrypt encrypts the content with salt

@@ -9,7 +9,8 @@ import (
 
 	//"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"kabao/common"
+
+	"kabao/utils"
 )
 
 type User struct {
@@ -57,7 +58,7 @@ func AddNewUser(m *User) (id int64, err error) {
 	}
 	id, err = o.Insert(m)
 	if err == nil {
-		t := &Token{Userid: int(id), Token: common.RandSeq(64)}
+		t := &Token{Userid: int(id), Token: utils.RandSeq(64)}
 		_, err := AddToken(t)
 		if err != nil {
 			o.Rollback()

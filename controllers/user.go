@@ -78,7 +78,7 @@ func (c *UserController) SignUp() {
 		v.Username = v.Phone + "_m"
 		if uid, err := models.AddUser(&v); err == nil {
 			//插入token
-			token := Token{Userid: uid, Token: utils.RandSeq(32), Isactive: 1, Expiretime: time.Now().Add(time.Month * 3)}
+			token := models.Token{Userid: uid, Token: utils.RandSeq(32), Isactive: 1, Expiretime: time.Now().Add(time.Month * 3)}
 			tid, err := models.AddToken(&token)
 			if err != nil {
 				token.Id = tid
