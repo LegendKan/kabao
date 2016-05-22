@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/garyburd/redigo/redis"
 	"kabao/logs"
+	"strconv"
 	"time"
 )
 
@@ -20,6 +21,12 @@ func init() {
 	REDIS_HOST = beego.AppConfig.String("redis::host")
 	REDIS_DB, _ = beego.AppConfig.Int("redis::db")
 	REDIS_AUTH = beego.AppConfig.String("redis::auth")
+	if REDIS_HOST == "" {
+		REDIS_HOST = "172.98.201.182:6379"
+	}
+	if REDIS_AUTH == "" {
+		REDIS_AUTH = "19901124ubuntu"
+	}
 	// 建立连接池
 	RedisClient = &redis.Pool{
 		// 从配置文件获取maxidle以及maxactive，取不到则用后面的默认值
@@ -48,7 +55,7 @@ func CheckPhoneTimes(phone string) (int, error) {
 	}
 	//设置超时12小时
 	if count == 1 {
-		if ok, _ := rc.Do("EXPIRE", "requests:"+phone, 12*3600); ok != 1 {
+		if ok, _ := redis.Int(rc.Do("EXPIRE", "requests:"+phone, 12*3600)); ok != 1 {
 			logs.Error("Redis: Set Expire Error " + phone)
 		}
 	}
@@ -61,6 +68,9 @@ func SetSMSCode(phone string, code string) error {
 	defer rc.Close()
 	if _, err := rc.Do("SET", "sms:"+phone, code); err != nil {
 		return err
+	}
+	if ok, _ := redis.Int(rc.Do("EXPIRE", "sms:"+phone, 300)); ok != 1 {
+		logs.Error("Redis: SetSMSCode Set Expire Error " + phone)
 	}
 	return nil
 }
@@ -77,11 +87,25 @@ func GetSMSCode(phone string) (string, error) {
 }
 
 //设置登录操作的token
-func SetUserTokenRedis(userid int, token string) (int, error) {
-	return 0, nil
+func SetUserTokenRedis(tokenid int, token string) error {
+	rc := RedisClient.Get()
+	defer rc.Close()
+	if _, err := rc.Do("SET", "token:"+strconv.Itoa(tokenid), token); err != nil {
+		return err
+	}
+	if ok, _ := redis.Int(rc.Do("EXPIRE", "token:"+strconv.Itoa(tokenid), 24*3600)); ok != 1 {
+		logs.Error("Redis: SetUserTokenRedis Set Expire Error " + strconv.Itoa(tokenid))
+	}
+	return nil
 }
 
 //获取登录的token
 func GetUserTokenRedis(tid int) (string, error) {
-	return "0", nil
+	rc := RedisClient.Get()
+	defer rc.Close()
+	token, err := redis.String(rc.Do("GET", "token:"+strconv.Itoa(tid)))
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
