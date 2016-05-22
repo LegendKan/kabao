@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/context"
 	"kabao/logs"
+	"kabao/models"
 	"sort"
 )
 
@@ -22,14 +23,27 @@ func auth(ctx *context.Context) {
 		ctx.WriteString("Error")
 		return
 	}
-	if len(ctx.Request.Form["userid"]) <= 0 || len(ctx.Request.Form["signature"]) <= 0 || ctx.Request.Form["userid"][0] == "" {
+	var tokenid int
+	if len(ctx.Request.Form["userid"]) <= 0 || len(ctx.Request.Form["signature"]) <= 0 || ctx.Request.Form["userid"][0] == "" || len(ctx.Request.Form["tokenid"][0]) <= 0 {
 		ctx.WriteString("Error")
 		return
 	}
 	userid = ctx.Request.Form["userid"][0]
+	tokenid, err := strconv.Atoi(ctx.Input.GetData("tokenid"))
+	if err != nil {
+		ctx.WriteString("Error")
+		return
+	}
+	//根据token ID获取secret
+	secret, err := models.GetToken(tokenid)
+	if err != nil {
+		ctx.WriteString("Error")
+		return
+	}
 	fmt.Println(userid)
 	sorted_keys := make([]string, 0)
-	for k, _ := range ctx.Request.Form {
+	params := ctx.Input.Params()
+	for k, _ := range params { //ctx.Request.Form
 		sorted_keys = append(sorted_keys, k)
 	}
 	sort.Strings(sorted_keys)
@@ -40,15 +54,13 @@ func auth(ctx *context.Context) {
 			continue
 		}
 		if flag == 1 {
-			tmp = k + "=" + ctx.Request.Form[k][0]
+			tmp = k + "=" + params[k]
 			flag = 0
 		} else {
-			tmp = tmp + "&" + k + "=" + ctx.Request.Form[k][0]
+			tmp = tmp + "&" + k + "=" + params[k]
 		}
 	}
 	h := md5.New()
-	//根据用户ID获取secret
-	secret := "test"
 	h.Write([]byte(secret))
 	sign := hex.EncodeToString(h.Sum(nil))
 	tmp = tmp + "&" + sign
@@ -56,7 +68,7 @@ func auth(ctx *context.Context) {
 	h2.Write([]byte(tmp))
 	target := hex.EncodeToString(h2.Sum(nil))
 	fmt.Println(target)
-	if ctx.Request.Form["signature"][0] != target {
+	if params["signature"] != target {
 
 	}
 	//auth := ctx.Request.URL.Query().Get("auth")
