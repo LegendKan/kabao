@@ -8,6 +8,7 @@ import (
 	"kabao/logs"
 	"kabao/models"
 	"sort"
+	"strconv"
 )
 
 func auth(ctx *context.Context) {
@@ -29,7 +30,7 @@ func auth(ctx *context.Context) {
 		return
 	}
 	userid = ctx.Request.Form["userid"][0]
-	tokenid, err := strconv.Atoi(ctx.Input.GetData("tokenid"))
+	tokenid, err := strconv.Atoi(ctx.Input.Param("tokenid"))
 	if err != nil {
 		ctx.WriteString("Error")
 		return

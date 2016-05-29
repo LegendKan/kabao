@@ -57,7 +57,7 @@ func (c *UserController) SignUp() {
 	var r *Result
 	v.Phone = c.GetString("phone")
 	v.Password = c.GetString("password")
-	verification := c.GetString("verification")
+	//verification := c.GetString("verification")
 	//先连接redis判断验证码相关
 
 	if v.Phone == "" || len(v.Password) < 6 {
@@ -81,9 +81,9 @@ func (c *UserController) SignUp() {
 			token := models.Token{Userid: int(uid), Token: utils.RandSeq(32), Isactive: 1, Expiretime: time.Now().AddDate(0, 3, 0)}
 			tid, err := models.AddToken(&token)
 			if err != nil {
-				token.Id = tid
+				token.Id = int(tid)
 				//把token放入redis里
-				models.SetUserTokenRedis(tid, token)
+				models.SetUserTokenRedis(int(tid), token.Token)
 			}
 
 			r = BuildResult(OK, token)

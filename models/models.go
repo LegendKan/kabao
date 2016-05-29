@@ -13,12 +13,13 @@ var (
 func GetToken(tokenid int) (string, error) {
 	token, err := GetUserTokenRedis(tokenid)
 	if err == nil {
-		return token
+		return token, nil
 	}
-	token, err = GetTokenById(tokenid)
+	t, err := GetTokenById(tokenid)
 	if err != nil {
 		return "", err
 	}
+	token = t.Token
 	SetUserTokenRedis(tokenid, token)
-	return token
+	return token, nil
 }
