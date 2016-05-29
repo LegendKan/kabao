@@ -26,7 +26,7 @@ func init() {
 
 		beego.NSBefore(auth),
 
-		beego.NSNamespace("/",
+		beego.NSNamespace("/test",
 			beego.NSInclude(
 				&controllers.TestController{},
 			)),

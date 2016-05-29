@@ -111,6 +111,20 @@ func init() {
 			[]string{"delete"},
 			nil})
 
+	beego.GlobalControllerRouter["kabao/controllers:TestController"] = append(beego.GlobalControllerRouter["kabao/controllers:TestController"],
+		beego.ControllerComments{
+			"Post",
+			`/`,
+			[]string{"post"},
+			nil})
+
+	beego.GlobalControllerRouter["kabao/controllers:TestController"] = append(beego.GlobalControllerRouter["kabao/controllers:TestController"],
+		beego.ControllerComments{
+			"Get",
+			`/`,
+			[]string{"get"},
+			nil})
+
 	beego.GlobalControllerRouter["kabao/controllers:TokenController"] = append(beego.GlobalControllerRouter["kabao/controllers:TokenController"],
 		beego.ControllerComments{
 			"Post",

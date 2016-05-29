@@ -15,8 +15,8 @@ func auth(ctx *context.Context) {
 	//
 	url := ctx.Input.URL()
 	fmt.Println(url)
-	logs.Debug("Hello %d", 100)
-	if url == "/user/login" || url == "/user/register" {
+	logs.Debug("Hello %s", url)
+	if url == "/v1/user/login" || url == "/v1/user/register" || url == "/v1/test/" {
 		return
 	}
 	var userid string
