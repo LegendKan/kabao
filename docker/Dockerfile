@@ -20,15 +20,15 @@ RUN wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
 
 RUN tar -C /usr/local -xzf go1.6.2.linux-amd64.tar.gz
 
-RUN mkdir -p /home/go
+RUN mkdir -p /home/go/src
 
-ENV GOROOT GOROOT=/usr/local/go
+ENV GOROOT /usr/local/go
 
 ENV PATH $PATH:$GOROOT/bin
 
 ENV GOPATH /home/go
 
-WORKDIR /home/go
+WORKDIR /home/go/src
 
 RUN git clone https://LegendKan:19901124ubuntu@github.com/LegendKan/kabao.git 
 
