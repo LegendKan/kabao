@@ -16,11 +16,10 @@ COPY ./ssl /home/ssl
 
 RUN service nginx restart
 
-RUN wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-
-RUN tar -C /usr/local -xzf go1.6.2.linux-amd64.tar.gz
-
-RUN mkdir -p /home/go/src
+RUN wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go1.6.2.linux-amd64.tar.gz \
+    && rm go1.6.2.linux-amd64.tar.gz \
+    && mkdir -p /home/go/src
 
 ENV GOROOT /usr/local/go
 
