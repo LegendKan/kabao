@@ -23,9 +23,9 @@ RUN wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz \
 
 ENV GOROOT /usr/local/go
 
-ENV PATH $PATH:$GOROOT/bin
-
 ENV GOPATH /home/go
+
+ENV PATH $PATH:$GOROOT/bin:$GOPATH/bin
 
 WORKDIR /home/go/src
 
@@ -33,7 +33,9 @@ RUN git clone https://LegendKan:19901124ubuntu@github.com/LegendKan/kabao.git
 
 WORKDIR kabao
 
-RUN go get
+RUN go get github.com/astaxie/beego \
+	&& go get github.com/beego/bee \
+	&& go get
 
 EXPOSE 8080
 
