@@ -37,6 +37,6 @@ RUN go get github.com/astaxie/beego \
 	&& go get github.com/beego/bee \
 	&& go get
 
-EXPOSE 8080
+EXPOSE 80 443
 
 ENTRYPOINT bee run
