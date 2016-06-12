@@ -39,4 +39,4 @@ RUN go get github.com/astaxie/beego \
 
 EXPOSE 80 443
 
-ENTRYPOINT bee run
+ENTRYPOINT service nginx restart && bee run
